@@ -1,0 +1,6 @@
+@import './variables.css';
+@import './highlight.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

@@ -1,0 +1,141 @@
+---
+title: Building a port of sonner
+date: 2023-01-05
+description: What I've learned from building a port of sonner
+---
+
+[sonner](https://sonner.emilkowal.ski/) is awesome as it provides good experience to user. And I wonder why not build a sonner for solid.js. Although there has been a [solid-sonner](https://github.com/wobsoriano/solid-sonner), I try to build it on my own and learn something from it.
+
+## State management
+
+[sonner](https://sonner.emilkowal.ski/) uses **Observer Pattern** to manage the state of toasts.
+
+For solid.js, thanks to the fine grained reactivity, it's possible to directly use `createStore()` inside a class to manage the data of toasts.
+
+Whenever the `toast()` function is called, it updates `toasts` through `setToasts()`. I don't need to use `useEffect` to subscribe and notify some message inside the Component.
+
+```ts {1-3,4}
+class ToastState {
+  toasts: ToastT[]
+  setToasts: SetStoreFunction<ToastT[]>
+
+  constructor() {
+    const [toasts, setToasts] = createStore<ToastT[]>([])
+    this.toasts = toasts
+    this.setToasts = setToasts
+  }
+
+  addToast = (toast: ToastT) => {
+    this.setToasts(
+      produce((toasts) => {
+        toasts.unshift(toast)
+      }),
+    )
+  }
+
+  createToast = (data: ExternalToast & { message?: string | JSXElement }) => {
+    // ... ...
+  }
+
+  message = (message: string | JSXElement, data?: ExternalToast) => {
+    this.createToast({ ...data, message })
+  }
+
+  // ... ...
+}
+```
+
+## Reactivity
+
+The difference between Solid.js and React is that the function **only runs once** in Solid.js.
+
+So if I want the variable to be reactive, I need to wrap it into a function. In that way, Solid.js know to track the variable and update UI.
+
+For example, assigning `props.position.split("-")` to `coords` won't trigger any updates when the `props.position` changes.
+
+```tsx
+const Toaster = (props) => {
+  const coords = props.position.split('-')
+
+  // won't change with props.position
+  return <div>{coords[0]}</div>
+}
+```
+
+I need to assigning `() => props.position.split("-")` to `coords` so Solid.js knows the variable is reactive.
+
+```tsx
+const Toaster = (props) => {
+  const coords = () => props.position.split('-')
+
+  // update when props.position changes
+  return <div>{coords()[0]}</div>
+}
+```
+
+## animate the toast
+
+[sonner](https://sonner.emilkowal.ski/) divides the transition into four steps using `css variables` and `data-* attributes`:
+
+1. initial: set opacity=0 and translateY(100%).
+2. mounted: set opacity=1 and translateY(0).
+3. removed: set opacity=0 and translateY(100%).
+4. unmounted: unmount the component.
+
+There are not much differences between React and Solid.js to implement the transition.
+
+But there is one thing needs to be paid attention: when writing `data-*={variable}`, the variable shouldn't be `undefined` or you may get something unexpected.
+
+```tsx
+<div
+  // use Boolean to avoid undefined
+  data-expanded={Boolean(props.expanded)}
+/>
+```
+
+## JSX
+
+When I first time started implementing the icon using Solid.js. I wrote the following code.
+
+```tsx
+const SuccessIcon = <svg>{/* ... ... */}</svg>
+
+const Toast = () => {
+  return <div>{SuccessIcon}</div>
+}
+```
+
+When there are multiple toasts, there is only one of them showing the icon.
+
+I pasted the code in Solid Playground and it showed me the compiled result.
+
+```tsx
+import { template as _$template } from 'solid-js/web'
+import { insert as _$insert } from 'solid-js/web'
+
+const _tmpl$ = /*#__PURE__*/ _$template(`<svg />`),
+  _tmpl$2 = /*#__PURE__*/ _$template(`<div>`)
+const SuccessIcon = _tmpl$()
+
+const Toast = () => {
+  return (() => {
+    const _el$2 = _tmpl$2()
+    _$insert(_el$2, SuccessIcon)
+    return _el$2
+  })()
+}
+```
+
+The `SuccessIcon` is a created element. When there are multiple toasts, Solid.js uses `document.appendChild()` to push the same element into different elements. So there is always only one icon appears in toasts.
+
+To fix the issue, I made the icon into Component so that different toasts would render different icon instances independently.
+
+```tsx
+const SuccessIcon = () => <svg>{/* ... ... */}</svg>
+```
+
+## publishing and deploy
+
+### link-workspace-packages
+
+[link-workspace-packages](https://pnpm.io/npmrc#link-workspace-packages)
