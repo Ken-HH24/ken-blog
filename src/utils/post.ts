@@ -1,5 +1,7 @@
-import type { Post } from 'contentlayer/generated'
+import { enPost, zhPost } from 'contentlayer/generated'
 import { compareDesc } from 'date-fns/compareDesc'
 
-export const sortPosts = (postA: Post, postB: Post) =>
+export const sortPosts = <T extends zhPost | enPost>(postA: T, postB: T) =>
   compareDesc(postA.formattedData, postB.formattedData)
+
+export const getPostURL = (post: zhPost | enPost) => `/article/${post.slug}`

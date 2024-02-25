@@ -15,7 +15,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
   const pathname = usePathname()
 
   return (
-    <div className="flex gap-6 md:gap-10">
+    <div className="flex items-center gap-6 md:gap-10">
       {items.map((item) => (
         <Link
           key={item.href}
