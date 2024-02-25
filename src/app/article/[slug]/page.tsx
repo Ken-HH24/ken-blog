@@ -1,9 +1,9 @@
 import { useMDXComponent } from 'next-contentlayer/hooks'
 
-import { allENPosts, allZHPosts } from 'contentlayer/generated'
+import { allPosts } from 'contentlayer/generated'
 
 export async function generateStaticParams() {
-  return [...allZHPosts, ...allENPosts].map((post) => ({
+  return allPosts.map((post) => ({
     slug: post.slug,
   }))
 }
@@ -15,7 +15,7 @@ interface ArticleProps {
 export default function Article(props: ArticleProps) {
   const { slug } = props.params || {}
 
-  const post = [...allENPosts, ...allZHPosts].find((post) => post.slug === slug)
+  const post = allPosts.find((post) => post.slug === slug)
 
   const MDXComponent = useMDXComponent(post?.body.code || '')
 

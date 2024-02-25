@@ -1,10 +1,10 @@
 import Link from 'next/link'
 
-import { ENPost, ZHPost, allENPosts, allZHPosts } from 'contentlayer/generated'
+import { Post } from 'contentlayer/generated'
 
-import { getPostURL, sortPosts } from '@/utils/post'
+import { getEnPosts, getPostURL, getZhPosts, sortPosts } from '@/utils/post'
 
-const PostLink = ({ post }: { post: ZHPost | ENPost }) => (
+const PostLink = ({ post }: { post: Post }) => (
   <Link
     key={post._id}
     href={getPostURL(post)}
@@ -27,16 +27,18 @@ const PostLink = ({ post }: { post: ZHPost | ENPost }) => (
 const ArticlesPage = () => {
   return (
     <div>
-      {allENPosts.sort(sortPosts).map((enPost) => {
-        const zhPost = allZHPosts.find((zhPost) => zhPost.metaName === enPost.metaName)
+      {getEnPosts()
+        .sort(sortPosts)
+        .map((enPost) => {
+          const zhPost = getZhPosts().find((zhPost) => zhPost.name === enPost.name)
 
-        return (
-          <>
-            <PostLink key={enPost._id} post={enPost} />
-            {zhPost && <PostLink key={zhPost._id} post={zhPost} />}
-          </>
-        )
-      })}
+          return (
+            <>
+              <PostLink key={enPost._id} post={enPost} />
+              {zhPost && <PostLink key={zhPost._id} post={zhPost} />}
+            </>
+          )
+        })}
     </div>
   )
 }

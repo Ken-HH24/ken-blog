@@ -14,43 +14,44 @@ const rehypePrettyCodeOptions: RehypePrettyCodeOptions = {
   }),
 }
 
-const postGenerator =
-  (locale: string): Parameters<typeof defineDocumentType>[0] =>
-  () => ({
-    name: `${locale.toUpperCase()}Post`,
-    filePathPattern: `${locale}/**/*.mdx`,
-    contentType: 'mdx',
-    fields: {
-      title: { type: 'string', required: true },
-      description: { type: 'string', required: true },
-      date: { type: 'date', required: true },
-    },
-    computedFields: {
-      slug: {
-        type: 'string',
-        resolve: (post) => {
-          const [, slug] = post._raw.flattenedPath.split('/')
-          return `${slug}_${locale}`
-        },
+export const Post = defineDocumentType(() => ({
+  name: 'Post',
+  filePathPattern: `**/*.mdx`,
+  contentType: 'mdx',
+  fields: {
+    title: { type: 'string', required: true },
+    description: { type: 'string', required: true },
+    date: { type: 'date', required: true },
+  },
+  computedFields: {
+    slug: {
+      type: 'string',
+      resolve: (post) => {
+        const [name, locale] = post._raw.sourceFileName.split('.')
+        return `${name}_${locale}`
       },
-      metaName: {
-        type: 'string',
-        resolve: (post) => {
-          const [, slug] = post._raw.flattenedPath.split('/')
-          return slug
-        },
-      },
-      locale: { type: 'string', resolve: () => locale },
-      formattedData: { type: 'string', resolve: (post) => formatDate(post.date, 'yyyy-MM-dd') },
     },
-  })
-
-export const ZhPost = defineDocumentType(postGenerator('zh'))
-export const EnPost = defineDocumentType(postGenerator('en'))
+    name: {
+      type: 'string',
+      resolve: (post) => {
+        const [name] = post._raw.sourceFileName.split('.')
+        return name
+      },
+    },
+    locale: {
+      type: 'string',
+      resolve: (post) => {
+        const [, locale] = post._raw.sourceFileName.split('.')
+        return locale || 'en'
+      },
+    },
+    formattedData: { type: 'string', resolve: (post) => formatDate(post.date, 'yyyy-MM-dd') },
+  },
+}))
 
 export default makeSource({
   contentDirPath: 'src/posts',
-  documentTypes: [ZhPost, EnPost],
+  documentTypes: [Post],
   mdx: {
     rehypePlugins: [
       [
