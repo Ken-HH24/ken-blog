@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { allEnPosts } from 'contentlayer/generated'
+import { allENPosts } from 'contentlayer/generated'
 
 import { getPostURL, sortPosts } from '@/utils/post'
 
@@ -16,7 +16,7 @@ const HomePage = () => (
     <div className="mt-16 sm:mt-32">
       <span className="text-lg mb-5 block font-medium sm:mb-4">Article</span>
       <div className="flex flex-col gap-7 sm:gap-4">
-        {allEnPosts
+        {allENPosts
           .sort(sortPosts)
           .slice(0, 3)
           .map((post) => (
@@ -34,7 +34,7 @@ const HomePage = () => (
     <div className="mt-16 sm:mt-32">
       <span className="text-lg mb-5 block font-medium sm:mb-4">More</span>
       <span>
-        You can see more of my code on
+        {'You can see more of my code on '}
         <Link
           href="https://github.com/Ken-HH24"
           className="underline underline-offset-2 text-gray-600"

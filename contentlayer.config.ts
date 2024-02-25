@@ -17,7 +17,7 @@ const rehypePrettyCodeOptions: RehypePrettyCodeOptions = {
 const postGenerator =
   (locale: string): Parameters<typeof defineDocumentType>[0] =>
   () => ({
-    name: `${locale}Post`,
+    name: `${locale.toUpperCase()}Post`,
     filePathPattern: `${locale}/**/*.mdx`,
     contentType: 'mdx',
     fields: {
