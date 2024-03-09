@@ -18,7 +18,7 @@ const rehypePrettyCodeOptions: RehypePrettyCodeOptions = {
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
-  filePathPattern: `**/*.mdx`,
+  filePathPattern: `posts/**/*.mdx`,
   contentType: 'mdx',
   fields: {
     title: { type: 'string', required: true },
@@ -67,9 +67,24 @@ export const Post = defineDocumentType(() => ({
   },
 }))
 
+export const Tip = defineDocumentType(() => ({
+  name: 'Tip',
+  filePathPattern: 'tips/**/*.mdx',
+  contentType: 'mdx',
+  fields: {
+    title: { type: 'string', required: true },
+  },
+  computedFields: {
+    slug: {
+      type: 'string',
+      resolve: (post) => post._raw.sourceFileName,
+    },
+  },
+}))
+
 export default makeSource({
-  contentDirPath: 'src/posts',
-  documentTypes: [Post],
+  contentDirPath: 'src',
+  documentTypes: [Post, Tip],
   mdx: {
     rehypePlugins: [
       [rehypeSlug],

@@ -1,0 +1,93 @@
+---
+title: Heap in js
+---
+
+## code
+
+```ts
+class Heap {
+  constructor() {
+    this.nums = []
+  }
+
+  swap = (i, j) => {
+    const temp = this.nums[j]
+    this.nums[j] = this.nums[i]
+    this.nums[i] = temp
+  }
+
+  push = (num) => {
+    this.nums.push(num)
+    let i = this.nums.length - 1
+    while (i > 0) {
+      const p = Math.floor((i - 1) / 2)
+      if (this.nums[p] > this.nums[i]) {
+        this.swap(p, i)
+        i = p
+      } else {
+        break
+      }
+    }
+  }
+
+  pop = () => {
+    const res = this.nums[0]
+    this.swap(0, this.nums.length - 1)
+    this.nums.pop()
+    let i = 0
+    while (true) {
+      const a = i * 2 + 1
+      const b = i * 2 + 2
+      let pos = i
+
+      if (a < this.nums.length && this.nums[pos] > this.nums[a]) {
+        pos = a
+      }
+
+      if (b < this.nums.length && this.nums[pos] > this.nums[b]) {
+        pos = b
+      }
+
+      if (pos !== i) {
+        this.swap(pos, i)
+        i = pos
+      } else {
+        break
+      }
+    }
+
+    return res
+  }
+
+  peek = () => {
+    return this.nums[0]
+  }
+
+  size = () => {
+    return this.nums.length
+  }
+}
+```
+
+## leetcoce
+
+[leetcode kth-largest-element-in-an-array](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
+
+```ts
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var findKthLargest = function (nums, k) {
+  const heap = new Heap()
+  for (const num of nums) {
+    heap.push(num)
+    if (heap.size() > k) {
+      heap.pop()
+    }
+  }
+
+  return heap.peek()
+}
+```

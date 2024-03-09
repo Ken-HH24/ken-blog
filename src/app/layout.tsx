@@ -30,6 +30,7 @@ export default function RootLayout({
             items={[
               { name: 'Home', href: '/' },
               { name: 'Article', href: '/article' },
+              { name: 'Tips', href: '/tips' },
             ]}
           />
         </Layout.Header>
