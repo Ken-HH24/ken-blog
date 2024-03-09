@@ -21,7 +21,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
           key={item.href}
           href={item.href}
           className={cn('text-gray-600', {
-            'text-gray-900 font-medium': item.href === pathname,
+            'text-gray-900 font-semibold': item.href === pathname,
           })}
         >
           {item.name}

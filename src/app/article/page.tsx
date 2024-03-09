@@ -19,8 +19,6 @@ const PostLink = ({ post }: { post: Post }) => (
       )}
       <span className="font-semibold mb-1.5">{post.title}</span>
     </div>
-
-    {/* <span className="text-gray-600 text-sm">{post.description}</span> */}
   </Link>
 )
 

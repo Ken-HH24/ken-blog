@@ -1,7 +1,9 @@
 import { defineDocumentType, makeSource } from 'contentlayer/source-files'
 import { formatDate } from 'date-fns/format'
+import { slug as githubSlug } from 'github-slugger'
 import rehypePrettyCode from 'rehype-pretty-code'
 import type { Options as RehypePrettyCodeOptions } from 'rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
 import { createCssVariablesTheme } from 'shiki'
 
 const rehypePrettyCodeOptions: RehypePrettyCodeOptions = {
@@ -46,6 +48,22 @@ export const Post = defineDocumentType(() => ({
       },
     },
     formattedData: { type: 'string', resolve: (post) => formatDate(post.date, 'yyyy-MM-dd') },
+    toc: {
+      type: 'json',
+      resolve: (post) => {
+        const regXHeader = /\n(?<flag>#{1,6})\s+(?<content>.+)/g
+        const headings = Array.from(post.body.raw.matchAll(regXHeader)).map(({ groups }) => {
+          const flag = groups?.flag
+          const content = groups?.content
+          return {
+            level: flag?.length,
+            text: content,
+            slug: content ? githubSlug(content) : undefined,
+          }
+        })
+        return headings
+      },
+    },
   },
 }))
 
@@ -54,6 +72,7 @@ export default makeSource({
   documentTypes: [Post],
   mdx: {
     rehypePlugins: [
+      [rehypeSlug],
       [
         // @ts-expect-error -- TODO: fix type error
         rehypePrettyCode,
