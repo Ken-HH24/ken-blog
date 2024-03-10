@@ -6,72 +6,73 @@ title: Heap in js
 
 ```ts
 class Heap {
-  constructor() {
-    this.nums = []
+  constructor(compare) {
+    this.nums = [];
+    this.compare = compare ?? ((p, s) => p > s);
   }
 
   swap = (i, j) => {
-    const temp = this.nums[j]
-    this.nums[j] = this.nums[i]
-    this.nums[i] = temp
-  }
+    const temp = this.nums[j];
+    this.nums[j] = this.nums[i];
+    this.nums[i] = temp;
+  };
 
-  push = (num) => {
-    this.nums.push(num)
-    let i = this.nums.length - 1
+  push = num => {
+    this.nums.push(num);
+    let i = this.nums.length - 1;
     while (i > 0) {
-      const p = Math.floor((i - 1) / 2)
-      if (this.nums[p] > this.nums[i]) {
-        this.swap(p, i)
-        i = p
+      const p = Math.floor((i - 1) / 2);
+      if (this.compare(this.nums[p], this.nums[i])) {
+        this.swap(p, i);
+        i = p;
       } else {
-        break
+        break;
       }
     }
-  }
+  };
 
   pop = () => {
-    const res = this.nums[0]
-    this.swap(0, this.nums.length - 1)
-    this.nums.pop()
-    let i = 0
+    const res = this.nums[0];
+    this.swap(0, this.nums.length - 1);
+    this.nums.pop();
+    let i = 0;
     while (true) {
-      const a = i * 2 + 1
-      const b = i * 2 + 2
-      let pos = i
+      const a = i * 2 + 1;
+      const b = i * 2 + 2;
+      let pos = i;
 
-      if (a < this.nums.length && this.nums[pos] > this.nums[a]) {
-        pos = a
+      if (a < this.nums.length && this.compare(this.nums[pos], this.nums[a])) {
+        pos = a;
       }
 
-      if (b < this.nums.length && this.nums[pos] > this.nums[b]) {
-        pos = b
+      if (b < this.nums.length && this.compare(this.nums[pos], this.nums[b])) {
+        pos = b;
       }
 
       if (pos !== i) {
-        this.swap(pos, i)
-        i = pos
+        this.swap(pos, i);
+        i = pos;
       } else {
-        break
+        break;
       }
     }
 
-    return res
-  }
+    return res;
+  };
 
   peek = () => {
-    return this.nums[0]
-  }
+    return this.nums[0];
+  };
 
   size = () => {
-    return this.nums.length
-  }
+    return this.nums.length;
+  };
 }
 ```
 
 ## leetcoce
 
-[leetcode kth-largest-element-in-an-array](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
+### [leetcode kth-largest-element-in-an-array](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
 
 ```ts
 /**
@@ -90,4 +91,56 @@ var findKthLargest = function (nums, k) {
 
   return heap.peek()
 }
+```
+
+### [find-median-from-data-stream](https://leetcode.cn/problems/find-median-from-data-stream/)
+
+- The key idea is to maintain a **max heap** and a **min heap**, ensuring that the sizes of the two heaps are approximately equal every time a number is added.
+
+- When the sizes of the two heaps are equal, the median is the average of the tops of the two heaps. Otherwise, it is the top value of the heap with the larger size.
+
+- During the process, the two heaps may become unbalanced. Therefore, when adding a number, it is necessary to check whether the current number satisfies the requirement of the smallest (largest) k numbers. If it does not, the top element from the other heap should be moved to the current heap to maintain balance.
+
+```ts {15-18,23-26}
+/**
+ * initialize your data structure here.
+ */
+var MedianFinder = function () {
+  this.minHeap = new Heap((p, s) => p > s);
+  this.maxHeap = new Heap((p, s) => p < s);
+};
+
+/**
+ * @param {number} num
+ * @return {void}
+ */
+MedianFinder.prototype.addNum = function (num) {
+  if (this.minHeap.size() === this.maxHeap.size()) {
+    if (num < this.maxHeap.peek()) {
+      const temp = this.maxHeap.pop();
+      this.minHeap.push(temp);
+      this.maxHeap.push(num);
+    } else {
+      this.minHeap.push(num);
+    }
+  } else {
+    if (num > this.minHeap.peek()) {
+      const temp = this.minHeap.pop();
+      this.maxHeap.push(temp);
+      this.minHeap.push(num);
+    } else {
+      this.maxHeap.push(num);
+    }
+  }
+};
+
+/**
+ * @return {number}
+ */
+MedianFinder.prototype.findMedian = function () {
+  return this.minHeap.size() === this.maxHeap.size()
+    ? (this.minHeap.peek() + this.maxHeap.peek()) / 2
+    : this.minHeap.peek();
+};
+
 ```

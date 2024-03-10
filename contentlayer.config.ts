@@ -77,7 +77,7 @@ export const Tip = defineDocumentType(() => ({
   computedFields: {
     slug: {
       type: 'string',
-      resolve: (post) => post._raw.sourceFileName,
+      resolve: (tip) => tip._raw.sourceFileName,
     },
   },
 }))
