@@ -72,7 +72,8 @@ class Heap {
 
 ## leetcoce
 
-### [leetcode kth-largest-element-in-an-array](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
+### kth-largest-element-in-an-array
+- **link**: [kth-largest-element-in-an-array](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
 
 ```ts
 /**
@@ -93,7 +94,8 @@ var findKthLargest = function (nums, k) {
 }
 ```
 
-### [find-median-from-data-stream](https://leetcode.cn/problems/find-median-from-data-stream/)
+### find-median-from-data-stream
+- **link**: [find-median-from-data-stream](https://leetcode.cn/problems/find-median-from-data-stream/)
 
 - The key idea is to maintain a **max heap** and a **min heap**, ensuring that the sizes of the two heaps are approximately equal every time a number is added.
 
@@ -143,4 +145,167 @@ MedianFinder.prototype.findMedian = function () {
     : this.minHeap.peek();
 };
 
+```
+
+### find-k-pairs-with-smallest-sums
+
+- **link**: [find-k-pairs-with-smallest-sums](https://leetcode.cn/problems/find-k-pairs-with-smallest-sums/)
+
+```js
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @param {number} k
+ * @return {number[][]}
+ */
+var kSmallestPairs = function (nums1, nums2, k) {
+  const heap = new Heap((a, b) => a[0] + a[1] > b[0] + b[1]);
+  let numsA = nums1;
+  let numsB = nums2;
+  let flag = false;
+  const n = nums1.length;
+  const m = nums2.length;
+  if (n > m) {
+    flag = true;
+    const temp = numsA;
+    numsA = numsB;
+    numsB = temp;
+  }
+
+  for (let i = 0; i < numsA.length && i < k; i++) {
+    heap.push([numsA[i], numsB[0], i, 0]);
+  }
+
+  const res = [];
+  while (res.length < k && heap.size()) {
+    const num = heap.pop();
+
+    res.push(flag ? [num[1], num[0]] : [num[0], num[1]]);
+    if (num[3] + 1 < numsB.length) {
+      heap.push([numsA[num[2]], numsB[num[3] + 1], num[2], num[3] + 1]);
+    }
+  }
+
+  return res;
+};
+```
+
+### find-median-from-data-stream
+
+- **link**: [find-median-from-data-stream](https://leetcode.cn/problems/find-median-from-data-stream)
+
+```js
+
+var MedianFinder = function () {
+  this.heapA = new Heap((a, b) => a > b);
+  this.heapB = new Heap((a, b) => a < b);
+};
+
+/**
+ * @param {number} num
+ * @return {void}
+ */
+MedianFinder.prototype.addNum = function (num) {
+  const heapA = this.heapA;
+  const heapB = this.heapB;
+  const res = this.findMedian();
+  if (num < res) {
+    heapA.push(num);
+    if (heapB.size() + 1 < heapA.size()) {
+      heapB.push(heapA.peek());
+      heapA.pop();
+    }
+  } else {
+    heapB.push(num);
+    if (heapB.size() > heapA.size()) {
+      heapA.push(heapB.peek());
+      heapB.pop();
+    }
+  }
+};
+
+/**
+ * @return {number}
+ */
+MedianFinder.prototype.findMedian = function () {
+  const heapA = this.heapA;
+  const heapB = this.heapB;
+
+  const sizeA = heapA.size();
+  const sizeB = heapB.size();
+
+  return sizeA === sizeB ? (heapA.peek() + heapB.peek()) / 2 : heapA.peek();
+};
+```
+
+### sliding-window-median
+
+- **link**: [sliding-window-median](https://leetcode.cn/problems/sliding-window-median)
+
+```js
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number[]}
+ */
+var medianSlidingWindow = function (nums, k) {
+  const res = [];
+  const maxHeap = new Heap((a, b) => a > b);
+  const minHeap = new Heap((a, b) => a < b);
+  for (let i = 0; i < k; i++) {
+    maxHeap.push(nums[i]);
+  }
+  for (let i = 0; i < Math.floor(k / 2); i++) {
+    minHeap.push(maxHeap.peek());
+    maxHeap.pop();
+  }
+
+  res.push(k % 2 === 0 ? (maxHeap.peek() + minHeap.peek()) / 2 : maxHeap.peek());
+
+  let balance = 0;
+  const mp = {};
+  for (let i = k; i < nums.length; i++) {
+    const num = nums[i];
+    const deleteNum = nums[i - k];
+    mp[deleteNum] = (mp[deleteNum] ?? 0) + 1;
+
+    balance = 0;
+
+    if (deleteNum <= maxHeap.peek()) {
+      balance--;
+    } else {
+      balance++;
+    }
+
+    if (num <= maxHeap.peek()) {
+      maxHeap.push(num);
+      balance++;
+    } else {
+      minHeap.push(num);
+      balance--;
+    }
+
+    if (balance === 2) {
+      minHeap.push(maxHeap.peek());
+      maxHeap.pop();
+    } else if (balance === -2) {
+      maxHeap.push(minHeap.peek());
+      minHeap.pop();
+    }
+
+    while (mp[maxHeap.peek()]) {
+      mp[maxHeap.peek()]--;
+      maxHeap.pop();
+    }
+
+    while (mp[minHeap.peek()]) {
+      mp[minHeap.peek()]--;
+      minHeap.pop();
+    }
+
+    res.push(k % 2 === 0 ? (maxHeap.peek() + minHeap.peek()) / 2 : maxHeap.peek());
+  }
+
+  return res;
+};
 ```

@@ -79,6 +79,22 @@ export const Tip = defineDocumentType(() => ({
       type: 'string',
       resolve: (tip) => tip._raw.sourceFileName,
     },
+    toc: {
+      type: 'json',
+      resolve: (tip) => {
+        const regXHeader = /\n(?<flag>#{1,6})\s+(?<content>.+)/g
+        const headings = Array.from(tip.body.raw.matchAll(regXHeader)).map(({ groups }) => {
+          const flag = groups?.flag
+          const content = groups?.content
+          return {
+            level: flag?.length,
+            text: content,
+            slug: content ? githubSlug(content) : undefined,
+          }
+        })
+        return headings
+      },
+    },
   },
 }))
 

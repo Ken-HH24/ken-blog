@@ -2,6 +2,8 @@ import { useMDXComponent } from 'next-contentlayer/hooks'
 
 import { allTips } from 'contentlayer/generated'
 
+import Toc from '@/components/toc'
+
 export async function generateStaticParams() {
   return allTips.map((tip) => ({
     slug: tip.slug,
@@ -25,6 +27,7 @@ export default function Tip(props: TipProps) {
         <h1 className="mb-2">{tip?.title}</h1>
         <MDXComponent />
       </div>
+      <Toc toc={tip?.toc} className="hidden xl:block" />
     </div>
   )
 }
